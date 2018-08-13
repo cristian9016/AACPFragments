@@ -9,9 +9,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(),BlankFragment.OnFragmentInteractionListener {
 
-    private var isFragmentDisplayed = false
+    private var isFragmentDisplayed = true
     private val FRAGMENT_STATE = "state_of_fragment"
     private var choice = 2
+    private var rValue = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,14 +22,13 @@ class MainActivity : AppCompatActivity(),BlankFragment.OnFragmentInteractionList
             if (isFragmentDisplayed) btnRate.text = "Cerrar"
         }
         btnRate.setOnClickListener {
-            Toast.makeText(this@MainActivity, "click", Toast.LENGTH_SHORT).show()
             if (isFragmentDisplayed) openFragment()
             else closeFragment()
         }
     }
 
     fun openFragment() {
-        val fragment = BlankFragment.newInstance(choice)
+        val fragment = BlankFragment.newInstance(choice,rValue)
         supportFragmentManager.beginTransaction()
                 .add(R.id.container, fragment)
                 .addToBackStack(null)
@@ -46,8 +46,9 @@ class MainActivity : AppCompatActivity(),BlankFragment.OnFragmentInteractionList
         isFragmentDisplayed = !isFragmentDisplayed
     }
 
-    override fun onRadioButtonChoice(choice: Int) {
+    override fun onRadioButtonChoice(choice: Int, rBar: Float) {
         this.choice = choice
+        this.rValue = rBar
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {

@@ -7,10 +7,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.RatingBar
-import android.widget.Toast
+import android.widget.*
 import kotlinx.android.synthetic.main.fragment_blank.*
 import com.example.personal.androidadvanced.BlankFragment.OnFragmentInteractionListener
 
@@ -23,6 +20,7 @@ class BlankFragment : Fragment() {
     private var param2: String? = null
     lateinit var onFragmentInteractionListener: OnFragmentInteractionListener
     private var mRadioButtonChoice = NONE
+    private var ratingValue = 0f
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -38,7 +36,21 @@ class BlankFragment : Fragment() {
         // Inflate the layout for this fragment
         val rootview = inflater.inflate(R.layout.fragment_blank, container, false)
         val radioGroup = rootview.findViewById(R.id.radioGroup) as RadioGroup
+        val rBar = rootview.findViewById(R.id.ratingBar) as RatingBar
+        val tvRating = rootview.findViewById(R.id.tvRating) as TextView
+
+        rBar.onRatingBarChangeListener = RatingBar.OnRatingBarChangeListener { p0, p1, p2 ->
+            onFragmentInteractionListener.onRadioButtonChoice(YES, p1)
+        }
+
         mRadioButtonChoice = arguments!!.getInt(CHOICE)
+        if(mRadioButtonChoice == YES) {
+            tvRating.visibility = View.VISIBLE
+            rBar.visibility = View.VISIBLE
+        }
+        ratingValue = arguments!!.getFloat(bValue)
+        rBar.rating = ratingValue
+
         if(mRadioButtonChoice!=NONE) radioGroup.check(radioGroup.getChildAt(mRadioButtonChoice).id)
         radioGroup.setOnCheckedChangeListener { p0, checkedId ->
             val rButton = p0!!.findViewById(checkedId) as RadioButton
@@ -46,34 +58,29 @@ class BlankFragment : Fragment() {
             when (index) {
                 YES -> {
                     textView3.text = "Este articulo te gusta"
-                    textView4.visibility = View.VISIBLE
+                    tvRating.visibility = View.VISIBLE
                     ratingBar.visibility = View.VISIBLE
                     mRadioButtonChoice = YES
-                    onFragmentInteractionListener.onRadioButtonChoice(YES)
+                    onFragmentInteractionListener.onRadioButtonChoice(YES, 0f)
                 }
                 NO -> {
                     textView3.text = "Gracias"
-                    textView4.visibility = View.GONE
+                    tvRating.visibility = View.GONE
                     ratingBar.visibility = View.GONE
                     mRadioButtonChoice = NO
-                    onFragmentInteractionListener.onRadioButtonChoice(NO)
+                    onFragmentInteractionListener.onRadioButtonChoice(NO,0f)
                 }
                 else -> {
                     mRadioButtonChoice = NONE
-                    onFragmentInteractionListener.onRadioButtonChoice(NONE)
+                    onFragmentInteractionListener.onRadioButtonChoice(NONE,0f)
                 }
             }
-        }
-
-        val rBar = rootview.findViewById(R.id.ratingBar) as RatingBar
-        rBar.onRatingBarChangeListener = RatingBar.OnRatingBarChangeListener { p0, p1, p2 ->
-            Toast.makeText(context, p1.toString(), Toast.LENGTH_SHORT).show()
         }
         return rootview
     }
 
     interface OnFragmentInteractionListener {
-        fun onRadioButtonChoice(choice: Int)
+        fun onRadioButtonChoice(choice: Int,rBar:Float)
     }
 
     companion object {
@@ -81,10 +88,12 @@ class BlankFragment : Fragment() {
         private const val NO = 1
         private const val NONE = 2
         private const val CHOICE = "choice"
-        fun newInstance(choice: Int): BlankFragment {
+        private const val bValue = "bar_value"
+        fun newInstance(choice: Int,barValue:Float): BlankFragment {
             val fragment = BlankFragment()
             val bundle = Bundle()
             bundle.putInt(CHOICE, choice)
+            bundle.putFloat(bValue,barValue)
             fragment.arguments = bundle
             return fragment
         }
